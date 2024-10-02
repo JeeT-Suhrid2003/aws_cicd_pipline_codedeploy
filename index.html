@@ -1,37 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>AAR DEMO | AWS CLOUD DEPLOYMENT</title>
-  <style>
-    body {
-      color: #000080;
-      background-color: #FFFFFF;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-    }
-    
-    h1 {
-      font-size: 500%;
-      font-weight: normal;
-      margin-bottom: 0;
-    }
-    
-    h2 {
-      font-size: 200%;
-      font-weight: normal;
-      margin-bottom: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Binary Background</title>
+    <style>
+        body {
+            transition: background-color 0.5s ease, opacity 0.5s ease;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            transition: opacity 0.5s ease;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .fullscreen-button {
+            background-color: #008CBA;
+        }
+
+        button.fullscreen-button:hover {
+            background-color: #007bb5;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div align="center">
-    <img src="https://s3.ap-south-1.amazonaws.com/www.basava.com/aar_logo_final.png" style="max-width: 20%;">
-    <h1>Congratulations!!! </h1>
-      <h2>Welcome to AAR SOURCE| Ram Hemareddy</h2>
-    <h3>This application was deployed using AWS CodeDeploy.</h3>
-    <p>For next steps, read the <a href="http://aws.amazon.com/documentation/codedeploy">AWS CodeDeploy Documentation</a>.</p>
-  </div>
+    <div class="container">
+        <h1>Enter Text</h1>
+        <input type="text" id="textInput" placeholder="Enter text (e.g., jeet)">
+        <button onclick="changeBackground()">Submit</button>
+        <button class="fullscreen-button" onclick="toggleFullscreen()">Toggle Fullscreen</button>
+        <div class="error" id="errorMessage"></div>
+    </div>
+
+    <script>
+        function textToBinary(text) {
+            return text.split('').map(char => {
+                let binary = char.charCodeAt(0).toString(2);
+                return binary.padStart(8, '0');
+            }).join('');
+        }
+    
+        function changeBackground() {
+    const input = document.getElementById('textInput');
+    const errorMessage = document.getElementById('errorMessage');
+    const container = document.querySelector('.container');
+    const body = document.body;
+
+    if (input.value === "") {
+        errorMessage.textContent = 'Please enter some text.';
+        return;
+    }
+
+    errorMessage.textContent = '';
+
+    // Make everything disappear
+    container.style.opacity = "0";
+    body.style.opacity = "0";
+
+    // Adding the starting bit sequence (e.g., 8 bits of '1')
+    const startSequence = '00000000'; 
+    const binaryString = startSequence + textToBinary(input.value);
+
+    let index = 0;
+
+    // Interval to change background color according to each bit (delays after each bit)
+    const interval = setInterval(() => {
+        if (index < binaryString.length) {
+            body.style.backgroundColor = binaryString[index] === '1' ? 'black' : 'white';
+            index++;
+        } else {
+            clearInterval(interval);
+            
+            // Adding an additional delay after the entire string of bits
+            setTimeout(() => {
+                // Make everything visible again after the background transition
+                container.style.opacity = "1";
+                body.style.opacity = "1";
+            }, 1000); // Adjust this delay as needed to match the time after the full string
+        }
+    }, 100);  // Delay applied after each bit (100ms to simulate Arduino's PERIOD)
+}
+
+    
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+    
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) { // Firefox
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { // IE/Edge
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+    
 </body>
 </html>
-
